@@ -1,6 +1,7 @@
 package com.example.expenditure;
 
 import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.data.r2dbc.query.Criteria;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,7 +30,11 @@ public class R2dbcExpenditureRepository implements ExpenditureRepository {
     public Mono<Expenditure> findById(Integer expenditureId) {
         // TODO
         // "expenditure_id"が引数のexpenditureIdに一致する1件のExpenditureを返す
-        return Mono.empty();
+        //return Mono.empty();
+        return this.databaseClient.select().from(Expenditure.class)
+                .matching(Criteria.where("expenditure_id").is(expenditureId))
+                .fetch()
+                .one();
     }
 
     @Override
