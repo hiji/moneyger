@@ -1,5 +1,6 @@
 package com.example.expenditure;
 
+import com.example.App;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,7 @@ class ExpenditureHandlerTest {
     @BeforeAll
     void before() {
         this.testClient = WebTestClient.bindToRouterFunction(this.expenditureHandler.routes())
+                .handlerStrategies(App.handlerStrategies())
                 .build();
     }
 
@@ -69,14 +71,14 @@ class ExpenditureHandlerTest {
                     assertThat(body.get(0).get("unitPrice").asInt()).isEqualTo(2000);
                     assertThat(body.get(0).get("quantity").asInt()).isEqualTo(1);
                     // TODO 後で実装します
-                    //assertThat(body.get(0).get("expenditureDate").asText()).isEqualTo("2019-04-01");
+                    assertThat(body.get(0).get("expenditureDate").asText()).isEqualTo("2019-04-01");
 
                     assertThat(body.get(1).get("expenditureId").asInt()).isEqualTo(2);
                     assertThat(body.get(1).get("expenditureName").asText()).isEqualTo("コーヒー");
                     assertThat(body.get(1).get("unitPrice").asInt()).isEqualTo(300);
                     assertThat(body.get(1).get("quantity").asInt()).isEqualTo(2);
                     // TODO 後で実装します
-                    //assertThat(body.get(1).get("expenditureDate").asText()).isEqualTo("2019-04-02");
+                    assertThat(body.get(1).get("expenditureDate").asText()).isEqualTo("2019-04-02");
                 });
     }
 
@@ -96,7 +98,7 @@ class ExpenditureHandlerTest {
                     assertThat(body.get("unitPrice").asInt()).isEqualTo(2000);
                     assertThat(body.get("quantity").asInt()).isEqualTo(1);
                     // TODO 後で実装します
-                    //assertThat(body.get("expenditureDate").asText()).isEqualTo("2019-04-01");
+                    assertThat(body.get("expenditureDate").asText()).isEqualTo("2019-04-01");
                 });
     }
 
@@ -146,7 +148,7 @@ class ExpenditureHandlerTest {
                     assertThat(body.get("unitPrice").asInt()).isEqualTo(250);
                     assertThat(body.get("quantity").asInt()).isEqualTo(1);
                     // TODO 後で実装します
-                    //assertThat(body.get("expenditureDate").asText()).isEqualTo("2019-04-03");
+                    assertThat(body.get("expenditureDate").asText()).isEqualTo("2019-04-03");
                 });
 
         this.testClient.get()
@@ -163,7 +165,7 @@ class ExpenditureHandlerTest {
                     assertThat(body.get("unitPrice").asInt()).isEqualTo(250);
                     assertThat(body.get("quantity").asInt()).isEqualTo(1);
                     // TODO 後で実装します
-                    //assertThat(body.get("expenditureDate").asText()).isEqualTo("2019-04-03");
+                    assertThat(body.get("expenditureDate").asText()).isEqualTo("2019-04-03");
                 });
     }
 
