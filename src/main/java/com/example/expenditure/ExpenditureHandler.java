@@ -1,5 +1,7 @@
 package com.example.expenditure;
 
+import com.example.error.ErrorResponseBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -41,10 +43,16 @@ public class ExpenditureHandler {
                 // TODO
                 // ExpenditureRepositoryでExpenditureを保存
                 // Hint: ExpenditureRepository.saveを使ってください。
-                .flatMap(this.expenditureRepository::save)
-                .flatMap(created -> ServerResponse
-                        .created(UriComponentsBuilder.fromUri(req.uri()).path("/{expenditureId}").build(created.getExpenditureId()))
-                        .bodyValue(created));
+//                .flatMap(this.expenditureRepository::save)
+//                .flatMap(created -> ServerResponse
+//                        .created(UriComponentsBuilder.fromUri(req.uri()).path("/{expenditureId}").build(created.getExpenditureId()))
+//                        .bodyValue(created));
+                .flatMap(expenditure -> expenditure.validate()
+                .bimap(v -> new ErrorResponseBuilder().withStatus(HttpStatus.BAD_REQUEST).withDetails(v).build(), this.expenditureRepository::save)
+                        .fold(error -> ServerResponse.badRequest().bodyValue(error),
+                                result -> result.flatMap(created -> ServerResponse
+                                        .created(UriComponentsBuilder.fromUri(req.uri()).path("/{expenditureId}").build(created.getExpenditureId()))
+                                        .bodyValue(created))));
     }
 
     Mono<ServerResponse> get(ServerRequest req) {
@@ -52,13 +60,17 @@ public class ExpenditureHandler {
                 .flatMap(expenditure -> ServerResponse.ok().bodyValue(expenditure))
                 .switchIfEmpty(Mono.defer(() -> ServerResponse
                         .status(NOT_FOUND)
-                        .bodyValue(new LinkedHashMap<String, Object>() {
-                                       {
-                                           put("status", 404);
-                                           put("error", "Not Found");
-                                           put("message", "The given expenditure is not found.");
-                                       }
-                                   })))
+//                        .bodyValue(new LinkedHashMap<String, Object>() {
+////                                       {
+////                                           put("status", 404);
+////                                           put("error", "Not Found");
+////                                           put("message", "The given expenditure is not found.");
+////                                       }
+////                                   })))
+                        .bodyValue(new ErrorResponseBuilder()
+                                .withMessage("The given expenditure is not found.")
+                                .withStatus(NOT_FOUND)
+                                .build())))
                 // TODO
                 // expenditureが存在しない場合は404を返す。エラーレスポンスは{"status":404,"error":"Not Found","message":"The given expenditure is not found."}
                 // Hint: switchIfEmptyおよびServerResponse.statusを使ってください。
