@@ -8,6 +8,8 @@ import com.example.expenditure.InMemoryExpenditureRepository;
 import com.example.expenditure.R2dbcExpenditureRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
+import io.r2dbc.pool.ConnectionPool;
+import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import org.slf4j.LoggerFactory;
@@ -60,7 +62,9 @@ public class App {
 //	}
 
 	static RouterFunction<ServerResponse> routes() {
-		final ConnectionFactory connectionFactory = connectionFactory();
+		// コネクションプール利用
+//		final ConnectionFactory connectionFactory = connectionFactory();
+		final ConnectionFactory connectionFactory = connectionPool(connectionFactory());
 		final DatabaseClient databaseClient = DatabaseClient.builder()
 				.connectionFactory(connectionFactory)
 				.build();
@@ -101,5 +105,14 @@ public class App {
 					.then();
 		}
 		return Mono.error(new IllegalStateException(name + " is not supported."));
+	}
+
+	static ConnectionPool connectionPool(ConnectionFactory connectionFactory) {
+		return new ConnectionPool(ConnectionPoolConfiguration.builder(connectionFactory)
+				.initialSize(4)
+				.maxSize(4)
+				.maxIdleTime(Duration.ofSeconds(3))
+				.validationQuery("SELECT 1")
+				.build());
 	}
 }
