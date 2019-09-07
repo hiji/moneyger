@@ -1,6 +1,5 @@
 package com.example.expenditure;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -51,7 +50,7 @@ public class ExpenditureHandler {
     Mono<ServerResponse> get(ServerRequest req) {
         return this.expenditureRepository.findById(Integer.valueOf(req.pathVariable("expenditureId")))
                 .flatMap(expenditure -> ServerResponse.ok().bodyValue(expenditure))
-                .switchIfEmpty(ServerResponse
+                .switchIfEmpty(Mono.defer(() -> ServerResponse
                         .status(NOT_FOUND)
                         .bodyValue(new LinkedHashMap<String, Object>() {
                                        {
@@ -59,7 +58,7 @@ public class ExpenditureHandler {
                                            put("error", "Not Found");
                                            put("message", "The given expenditure is not found.");
                                        }
-                                   }))
+                                   })))
                 // TODO
                 // expenditureが存在しない場合は404を返す。エラーレスポンスは{"status":404,"error":"Not Found","message":"The given expenditure is not found."}
                 // Hint: switchIfEmptyおよびServerResponse.statusを使ってください。
