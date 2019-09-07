@@ -13,8 +13,10 @@ import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.r2dbc.connectionfactory.R2dbcTransactionManager;
 import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.http.CacheControl;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
@@ -72,7 +74,9 @@ public class App {
 
 		initializeDatabase(connectionFactory.getMetadata().getName(), databaseClient).subscribe();
 
-		return new ExpenditureHandler(new R2dbcExpenditureRepository(databaseClient, transactionalOperator)).routes();
+//		return new ExpenditureHandler(new R2dbcExpenditureRepository(databaseClient, transactionalOperator)).routes();
+		return staticRoutes()
+				.and(new ExpenditureHandler(new R2dbcExpenditureRepository(databaseClient, transactionalOperator)).routes());
 	}
 
 	public static HandlerStrategies handlerStrategies() {
@@ -114,5 +118,16 @@ public class App {
 				.maxIdleTime(Duration.ofSeconds(3))
 				.validationQuery("SELECT 1")
 				.build());
+	}
+
+	static RouterFunction<ServerResponse> staticRoutes() {
+		return RouterFunctions.route()
+				.GET("/", req -> ServerResponse.ok().bodyValue(new ClassPathResource("META-INF/resources/index.html")))
+				.resources("/**", new ClassPathResource("META-INF/resources/"))
+				.filter((request, next) -> next.handle(request)
+						.flatMap(response -> ServerResponse.from(response)
+								.cacheControl(CacheControl.maxAge(Duration.ofDays(3)))
+								.build(response::writeTo)))
+				.build();
 	}
 }
