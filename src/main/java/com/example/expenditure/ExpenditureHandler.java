@@ -2,6 +2,7 @@ package com.example.expenditure;
 
 import com.example.error.ErrorResponseBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -13,6 +14,7 @@ import java.util.LinkedHashMap;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+@Component
 public class ExpenditureHandler {
 
     private final ExpenditureRepository expenditureRepository;
