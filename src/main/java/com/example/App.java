@@ -3,6 +3,7 @@ package com.example;
 import java.time.Duration;
 import java.util.Optional;
 
+import com.example.error.ErrorResponseExceptionHandler;
 import com.example.expenditure.ExpenditureHandler;
 import com.example.expenditure.InMemoryExpenditureRepository;
 import com.example.expenditure.R2dbcExpenditureRepository;
@@ -80,6 +81,7 @@ public class App {
 	}
 
 	public static HandlerStrategies handlerStrategies() {
+		// 例外ハンドラー追加
 		return HandlerStrategies.empty()
 				.codecs(configure -> {
 					configure.registerDefaults(true);
@@ -91,6 +93,8 @@ public class App {
 					defaults.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper));
 					defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper));
 				})
+				// 例外ハンドラー追加
+				.exceptionHandler(new ErrorResponseExceptionHandler())
 				.build();
 	}
 
