@@ -3,6 +3,8 @@ package com.example;
 import java.time.Duration;
 import java.util.Optional;
 
+import com.example.expenditure.ExpenditureHandler;
+import com.example.expenditure.InMemoryExpenditureRepository;
 import org.slf4j.LoggerFactory;
 import reactor.netty.http.server.HttpServer;
 
@@ -32,7 +34,11 @@ public class App {
 		});
 	}
 
+//	static RouterFunction<ServerResponse> routes() {
+//		return new HelloHandler().routes().and(new MessageHandler().routes());
+//	}
+
 	static RouterFunction<ServerResponse> routes() {
-		return new HelloHandler().routes().and(new MessageHandler().routes());
+		return new ExpenditureHandler(new InMemoryExpenditureRepository()).routes();
 	}
 }
